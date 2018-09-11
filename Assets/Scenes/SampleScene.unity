@@ -1159,6 +1159,23 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
+    - target: {fileID: 114593533339066818, guid: 70c17635a243a3141ac34a302ead1d82,
+        type: 2}
+      propertyPath: m_FontData.m_FontSize
+      value: 50
+      objectReference: {fileID: 0}
+    - target: {fileID: 114593533339066818, guid: 70c17635a243a3141ac34a302ead1d82,
+        type: 2}
+      propertyPath: m_Text
+      value: '09.09.18
+
+        17:00'
+      objectReference: {fileID: 0}
+    - target: {fileID: 114593533339066818, guid: 70c17635a243a3141ac34a302ead1d82,
+        type: 2}
+      propertyPath: m_FontData.m_Alignment
+      value: 4
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 70c17635a243a3141ac34a302ead1d82, type: 2}
   m_IsPrefabAsset: 0
@@ -2019,6 +2036,7 @@ GameObject:
   - component: {fileID: 1823388963}
   - component: {fileID: 1823388962}
   - component: {fileID: 1823388966}
+  - component: {fileID: 1823388967}
   m_Layer: 5
   m_Name: Scene
   m_TagString: Untagged
@@ -2123,6 +2141,17 @@ MonoBehaviour:
   - image: {fileID: 2134566194}
     menu: {fileID: 285122567}
   Menu: {fileID: 197055860}
+--- !u!114 &1823388967
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1823388961}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6e5a7632ca364547b47272f84e25c32, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1852952479
 GameObject:
   m_ObjectHideFlags: 0
