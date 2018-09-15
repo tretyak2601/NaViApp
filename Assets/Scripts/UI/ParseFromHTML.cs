@@ -7,7 +7,10 @@ using UnityEngine.UI;
 
 public class ParseFromHTML : MonoBehaviour {
 
-    private const string naViSite = "http://game-tournaments.com/csgo/team/navi";
+    private const string NaViCsGo = "http://game-tournaments.com/csgo/team/navi";
+    private const string NaViDota = "http://game-tournaments.com/dota-2/team/navi";
+    private const string NaViLOL = "http://game-tournaments.com/lol/team/navi";
+
     private const string needID = "block_matches_past";
     private const string NaVI = "Na`Vi";
 
@@ -31,27 +34,7 @@ public class ParseFromHTML : MonoBehaviour {
     void Start()
     {
         webSite = new WebClient();
-        html = webSite.DownloadString(naViSite);
-        tegs = Regex.Split(html, @"(?<=[>])");
-        
-        for (int i = 0; i < tegs.Length; i++)
-        {
-            if (tegs[i].Contains(needID))
-                needTag = i;
-        }
-
-        CountLastGames();
-        
-        prefabs = new GameObject[divs.Count];
-        tableTags = new string[divs.Count][];
-
-        for (int i = 0; i < divs.Count; i++)
-        {
-            tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
-            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
-        }
-
-        CreatePrefabs();
+        UpdatePage(NaViCsGo);
     }
 
     private void CountLastGames()
@@ -105,11 +88,13 @@ public class ParseFromHTML : MonoBehaviour {
                     {
                         prefabContent.c2name.text = NaVI;
                         ChangeSprite(prefabContent.naviLogo, prefabContent.c1name.text);
+                        Exceptions(true);
                     }
                     else
                     {
                         prefabContent.c2name.text = tableTags[i][j + 2].Substring(0, tableTags[i][j + 2].Length - 4);
                         ChangeSprite(prefabContent.enemyLogo, prefabContent.c2name.text);
+                        Exceptions(false);
                     }
                 }
 
@@ -131,4 +116,67 @@ public class ParseFromHTML : MonoBehaviour {
         }
         image.sprite = noName;
     }
+
+    public void UpdatePage(string page)
+    {
+        Clear();
+
+        html = webSite.DownloadString(page);
+        tegs = Regex.Split(html, @"(?<=[>])");
+
+        for (int i = 0; i < tegs.Length; i++)
+        {
+            if (tegs[i].Contains(needID))
+                needTag = i;
+        }
+
+        CountLastGames();
+
+        prefabs = new GameObject[divs.Count];
+        tableTags = new string[divs.Count][];
+
+        for (int i = 0; i < divs.Count; i++)
+        {
+            tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
+            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
+        }
+
+        CreatePrefabs();
+    }
+
+    private void Clear()
+    {
+        if (prefabs != null)
+        {
+            foreach (GameObject obj in prefabs)
+                Destroy(obj);
+
+            divs.Clear();
+
+            for (int i = 0; i < content.transform.childCount; i++)
+            {
+                Destroy(content.transform.GetChild(i).gameObject);
+            }
+        }
+    }
+
+    private void Exceptions(bool left)
+    {
+        if (left)
+        {
+            if (prefabContent.c1name.text.Contains("VP"))
+                ChangeSprite(prefabContent.naviLogo, "Virtus.Pro");
+            if (prefabContent.c1name.text.Contains("Fnatic"))
+                ChangeSprite(prefabContent.naviLogo, "fnatic");
+
+        }
+        else
+        {
+            if (prefabContent.c1name.text.Contains("VP"))
+                ChangeSprite(prefabContent.enemyLogo, "Virtus.Pro");
+            if (prefabContent.c1name.text.Contains("Fnatic"))
+                ChangeSprite(prefabContent.enemyLogo, "fnatic");
+        }
+    }
+    
 }
