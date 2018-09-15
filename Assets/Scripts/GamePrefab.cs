@@ -2,12 +2,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using System;
 
-[Serializable]
-public struct GamePrefab {
-    public int ID;
-    public string date;
-    public Texture2D enemyLogo;
-    public string bestOf;
+public class GamePrefab : MonoBehaviour {
+    private int id;
+    [HideInInspector] public string bestOf;
+
+    public Image naviLogo;
+    public Image enemyLogo;
+    public Text date;
+    public Text c1name;
+    public Text c2name;
 }
