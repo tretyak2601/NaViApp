@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Net;
 using System.Text.RegularExpressions;
 using UnityEngine.UI;
+using System.Text;
 
 public class ParseFromHTML : MonoBehaviour {
 
@@ -14,6 +15,7 @@ public class ParseFromHTML : MonoBehaviour {
     private const string needID = "block_matches_past";
     private const string NaVI = "Na`Vi";
 
+    private byte[] bHtml;
     private string html;
     private string[] tegs;
     private string[][] tableTags;
@@ -35,6 +37,34 @@ public class ParseFromHTML : MonoBehaviour {
     {
         webSite = new WebClient();
         UpdatePage(NaViCsGo);
+    }
+
+    public void UpdatePage(string page)
+    {
+        Clear();
+
+        bHtml = webSite.DownloadData(page);
+        html = Encoding.UTF8.GetString(bHtml);
+        tegs = Regex.Split(html, @"(?<=[>])");
+
+        for (int i = 0; i < tegs.Length; i++)
+        {
+            if (tegs[i].Contains(needID))
+                needTag = i;
+        }
+
+        CountLastGames();
+
+        prefabs = new GameObject[divs.Count];
+        tableTags = new string[divs.Count][];
+
+        for (int i = 0; i < divs.Count; i++)
+        {
+            tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
+            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
+        }
+
+        CreatePrefabs();
     }
 
     private void CountLastGames()
@@ -71,25 +101,20 @@ public class ParseFromHTML : MonoBehaviour {
             {
                 if (tableTags[i][j].Contains("teamname c1"))
                 {
-                    if (tableTags[i][j + 2].Contains("вЂ™"))
-                    {
+                    if (tableTags[i][j + 2].Contains("Na") && tableTags[i][j + 2].Contains("Vi"))
                         prefabContent.c1name.text = NaVI;
-                        ChangeSprite(prefabContent.naviLogo, prefabContent.c1name.text);
-                    }
                     else
                     {
                         prefabContent.c1name.text = tableTags[i][j + 2].Substring(0, tableTags[i][j + 2].Length - 4);
+                        ChangeSprite(prefabContent.naviLogo, prefabContent.c1name.text);
+                        Exceptions(true);
                     }
                 }
 
                 if (tableTags[i][j].Contains("teamname c2"))
                 {
-                    if (tableTags[i][j + 2].Contains("вЂ™"))
-                    {
+                    if (tableTags[i][j + 2].Contains("Na") && tableTags[i][j + 2].Contains("Vi"))
                         prefabContent.c2name.text = NaVI;
-                        ChangeSprite(prefabContent.naviLogo, prefabContent.c1name.text);
-                        Exceptions(true);
-                    }
                     else
                     {
                         prefabContent.c2name.text = tableTags[i][j + 2].Substring(0, tableTags[i][j + 2].Length - 4);
@@ -99,7 +124,10 @@ public class ParseFromHTML : MonoBehaviour {
                 }
 
                 if (tableTags[i][j].Contains("sct"))
+                {
                     prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
+                    prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
+                }
             }
         }
     }
@@ -115,33 +143,6 @@ public class ParseFromHTML : MonoBehaviour {
             }
         }
         image.sprite = noName;
-    }
-
-    public void UpdatePage(string page)
-    {
-        Clear();
-
-        html = webSite.DownloadString(page);
-        tegs = Regex.Split(html, @"(?<=[>])");
-
-        for (int i = 0; i < tegs.Length; i++)
-        {
-            if (tegs[i].Contains(needID))
-                needTag = i;
-        }
-
-        CountLastGames();
-
-        prefabs = new GameObject[divs.Count];
-        tableTags = new string[divs.Count][];
-
-        for (int i = 0; i < divs.Count; i++)
-        {
-            tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
-            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
-        }
-
-        CreatePrefabs();
     }
 
     private void Clear()
