@@ -14,7 +14,7 @@ public class ScreenSelected : MonoBehaviour {
     [HideInInspector] int numOfMenu;
     [HideInInspector] GameObject ShownMenu;
 
-    private static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
+    public static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
     public static Color unChoosed = new Color(1, 1, 1, 0.5f);
     private static Vector3 moove = new Vector3(1080, 0, 0);
     private const int speed = 5;

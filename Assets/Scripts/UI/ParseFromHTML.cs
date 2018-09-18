@@ -15,6 +15,7 @@ public class ParseFromHTML : MonoBehaviour {
     private const string futureGames = "block_matches_current";
     private const string pastGames = "block_matches_past";
     private const string NaVI = "Na`Vi";
+    private const string resultButton = "mbutton tresult";
 
     public static bool isPast = false;
     public static string needID = "block_matches_current";
@@ -117,6 +118,7 @@ public class ParseFromHTML : MonoBehaviour {
         if (!isPast)
         {
             needID = pastGames;
+            isPast = true;
             switch (gameName)
             {
                 case "dota":
@@ -129,11 +131,11 @@ public class ParseFromHTML : MonoBehaviour {
                     UpdatePage(NaViLOL);
                     break;
             }
-            isPast = true;
         }
         else
         {
             needID = futureGames;
+            isPast = false;
             switch (gameName)
             {
                 case "dota":
@@ -146,8 +148,8 @@ public class ParseFromHTML : MonoBehaviour {
                     UpdatePage(NaViLOL);
                     break;
             }
-            isPast = false;
         }
+
     }
 
     private void CountLastGames()
@@ -205,11 +207,40 @@ public class ParseFromHTML : MonoBehaviour {
                         Exceptions(false);
                     }
                 }
-
+                
                 if (tableTags[i][j].Contains("sct"))
                 {
-                    prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
-                    prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
+                    if (isPast)
+                    {
+                        prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
+                        prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
+
+                        prefabContent.date.text = prefabContent.date.text.Remove(prefabContent.date.text.Length - 12, 6);
+                        prefabContent.date.gameObject.transform.localPosition -= new Vector3(100f, 0f, 0f);
+                    }
+                    else
+                    {
+                        prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
+                        prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
+                    }
+                }
+
+                if (tableTags[i][j].Contains(resultButton))
+                {
+                    prefabContent.score.SetActive(true);
+                    string[] temp = Regex.Split(tableTags[i][j], "data-score=\"(.+)\"");
+                    foreach (var s in temp)
+                    {
+                        string[] scores = s.Split(':');
+                        if (scores.Length == 2)
+                        {
+                            string left = scores[0].Trim();
+                            string right = scores[1].Trim();
+                            int index = right.IndexOf('"');
+                            right = right.Substring(0, index);
+                            prefabContent.bestOf = left.Trim() + " : " + right.Trim();
+                        }
+                    }
                 }
             }
         }
