@@ -12,9 +12,15 @@ public class ParseFromHTML : MonoBehaviour {
     private const string NaViDota = "http://game-tournaments.com/dota-2/team/navi";
     private const string NaViLOL = "http://game-tournaments.com/lol/team/navi";
 
-    private const string needID = "block_matches_past";
+    private const string futureGames = "block_matches_current";
+    private const string pastGames = "block_matches_past";
     private const string NaVI = "Na`Vi";
 
+    public static bool isPast = false;
+    public static string needID = "block_matches_current";
+    public static bool gamesAvailable = false;
+
+    private string gameName = "csgo";
     private byte[] bHtml;
     private string html;
     private string[] tegs;
@@ -32,6 +38,8 @@ public class ParseFromHTML : MonoBehaviour {
     [SerializeField] ImageDict[] logos;
     [SerializeField] GameObject tablePrefab;
     [SerializeField] GameObject content;
+    [SerializeField] Image TimeBackButtonImage;
+    [SerializeField] Text NoGamesText;
 
     void Start()
     {
@@ -39,32 +47,107 @@ public class ParseFromHTML : MonoBehaviour {
         UpdatePage(NaViCsGo);
     }
 
+    public string GameName
+    {
+        set
+        {
+            this.gameName = value;
+        }
+        get
+        {
+            return this.gameName;
+        }
+    }
+    
+    public string NeedId
+    {
+        set
+        {
+            isPast = false;
+            needID = value;
+        }
+        get
+        {
+            return needID;
+        }
+    }
+
     public void UpdatePage(string page)
     {
+        TimeBackButtonImage.color = ScreenSelected.unChoosed;
+        NoGamesText.gameObject.SetActive(false);
+        gamesAvailable = false;
         Clear();
 
         bHtml = webSite.DownloadData(page);
         html = Encoding.UTF8.GetString(bHtml);
         tegs = Regex.Split(html, @"(?<=[>])");
-
+        
         for (int i = 0; i < tegs.Length; i++)
         {
             if (tegs[i].Contains(needID))
+            {
                 needTag = i;
+                gamesAvailable = true;
+            }
         }
 
-        CountLastGames();
-
-        prefabs = new GameObject[divs.Count];
-        tableTags = new string[divs.Count][];
-
-        for (int i = 0; i < divs.Count; i++)
+        if (gamesAvailable)
         {
-            tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
-            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
-        }
 
-        CreatePrefabs();
+            CountLastGames();
+
+            prefabs = new GameObject[divs.Count];
+            tableTags = new string[divs.Count][];
+
+            for (int i = 0; i < divs.Count; i++)
+            {
+                tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
+                prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
+            }
+
+            CreatePrefabs();
+        }
+        else
+            NoGamesText.gameObject.SetActive(true);
+    }
+
+    public void ShowLastGames()
+    {
+        if (!isPast)
+        {
+            needID = pastGames;
+            switch (gameName)
+            {
+                case "dota":
+                    UpdatePage(NaViDota);
+                    break;
+                case "csgo":
+                    UpdatePage(NaViCsGo);
+                    break;
+                case "lol":
+                    UpdatePage(NaViLOL);
+                    break;
+            }
+            isPast = true;
+        }
+        else
+        {
+            needID = futureGames;
+            switch (gameName)
+            {
+                case "dota":
+                    UpdatePage(NaViDota);
+                    break;
+                case "csgo":
+                    UpdatePage(NaViCsGo);
+                    break;
+                case "lol":
+                    UpdatePage(NaViLOL);
+                    break;
+            }
+            isPast = false;
+        }
     }
 
     private void CountLastGames()
@@ -149,6 +232,8 @@ public class ParseFromHTML : MonoBehaviour {
     {
         if (prefabs != null)
         {
+            content.transform.localPosition = Vector3.zero;
+
             foreach (GameObject obj in prefabs)
                 Destroy(obj);
 

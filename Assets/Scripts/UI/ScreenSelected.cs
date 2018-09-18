@@ -8,13 +8,14 @@ public class ScreenSelected : MonoBehaviour {
     
     [SerializeField] MenuPair[] menuPair;
     [SerializeField] GameObject Menu;
+    [SerializeField] Image lastGamesButtonImage;
 
     [HideInInspector] GameObject choosedMenu;
     [HideInInspector] int numOfMenu;
     [HideInInspector] GameObject ShownMenu;
 
-    private static Color choosed = new Color(1, 1, 1, 1);
-    private static Color unChoosed = new Color(1, 1, 1, 0.5f);
+    private static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
+    public static Color unChoosed = new Color(1, 1, 1, 0.5f);
     private static Vector3 moove = new Vector3(1080, 0, 0);
     private const int speed = 5;
     private bool isStaying = true;
@@ -82,9 +83,25 @@ public class ScreenSelected : MonoBehaviour {
     private void offOthers(MenuPair pair)
     {
         foreach (var i in menuPair)
+        {
             i.image.color = unChoosed;
+            i.bottomImage.gameObject.SetActive(false);
+        }
         
         ShownMenu = pair.menu;
         pair.image.color = choosed;
+        pair.bottomImage.gameObject.SetActive(true);
+    }
+
+    public void SetColor()
+    {
+        if (ParseFromHTML.isPast)
+        {
+            lastGamesButtonImage.color = choosed;
+        }
+        else
+        {
+            lastGamesButtonImage.color = unChoosed;
+        }
     }
 }
