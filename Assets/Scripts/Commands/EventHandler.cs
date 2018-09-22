@@ -21,13 +21,16 @@ public class EventHandler : MonoBehaviour {
 
     private void Group_OnChange(Toggle newActive)
     {
-        toggleInfo = newActive.GetComponent<ToggleObj>();
+        if (Application.internetReachability != NetworkReachability.NotReachable)
+        {
+            toggleInfo = newActive.GetComponent<ToggleObj>();
 
-        choosenGameImage.sprite = toggleInfo.GameImage;
-        loading.StartCour();
-        parsing.NeedId = ParseFromHTML.futureGames;
-        parsing.GameName = toggleInfo.GameName;
-        parsing.UpdatePage(toggleInfo.GameHtml);
+            choosenGameImage.sprite = toggleInfo.GameImage;
+            loading.StartCour();
+            parsing.NeedId = ParseFromHTML.futureGames;
+            parsing.GameName = toggleInfo.GameName;
+            parsing.UpdatePage(toggleInfo.GameHtml);
+        }
     }
 
     private void OnDisable()

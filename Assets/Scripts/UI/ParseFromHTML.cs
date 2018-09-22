@@ -14,14 +14,16 @@ public class ParseFromHTML : MonoBehaviour {
     private const string NaViDota = "http://game-tournaments.com/dota-2/team/navi";
     private const string NaViLOL = "http://game-tournaments.com/lol/team/navi";
 
+    private static string[] Month = { "January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December" };
     public const string futureGames = "block_matches_current";
-    public const string pastGames = "block_matches_past";
+    public  const string pastGames = "block_matches_past";
     private const string NaVI = "Na`Vi";
     private const string resultButton = "mbutton tresult";
 
     public static bool isPast = false;
     public static string needID = "block_matches_current";
     public static bool gamesAvailable = false;
+    public static int timeLocalization = 3;
 
     private string gameName = "csgo";
     private byte[] bHtml;
@@ -43,6 +45,7 @@ public class ParseFromHTML : MonoBehaviour {
     [SerializeField] GameObject content;
     [SerializeField] Image TimeBackButtonImage;
     [SerializeField] Text NoGamesText;
+    [SerializeField] Text NoInternet;
 
     public event Action OnUpdateStart;
     public event Action OnPrefabsCreated;
@@ -80,53 +83,62 @@ public class ParseFromHTML : MonoBehaviour {
 
     public void UpdatePage(string page)
     {
-        if (OnUpdateStart != null)
-            OnUpdateStart();
+        if (Application.internetReachability != NetworkReachability.NotReachable)
+        {
+            if (OnUpdateStart != null)
+                OnUpdateStart();
 
-        TimeBackButtonImage.color = ScreenSelected.unChoosed;
-        NoGamesText.gameObject.SetActive(false);
-        gamesAvailable = false;
-        Clear();
+            TimeBackButtonImage.color = ScreenSelected.unChoosed;
+            NoInternet.gameObject.SetActive(false);
+            NoGamesText.gameObject.SetActive(false);
+            gamesAvailable = false;
+            Clear();
 
-        //bHtml = webSite.DownloadData(page);
-        var observer = Observer.Create<byte[]>(
-            x =>
-            {
-                bHtml = x;
-            },
-            ex => Debug.Log("Error"),
-            () => 
-            {
-                html = Encoding.UTF8.GetString(bHtml);
-                tegs = Regex.Split(html, @"(?<=[>])");
-
-                for (int i = 0; i < tegs.Length; i++)
+            //bHtml = webSite.DownloadData(page);
+            var observer = Observer.Create<byte[]>(
+                x =>
                 {
-                    if (tegs[i].Contains(needID))
+                    bHtml = x;
+                },
+                ex => Debug.Log("Error"),
+                () =>
+                {
+                    html = Encoding.UTF8.GetString(bHtml);
+                    tegs = Regex.Split(html, @"(?<=[>])");
+
+                    for (int i = 0; i < tegs.Length; i++)
                     {
-                        needTag = i;
-                        gamesAvailable = true;
+                        if (tegs[i].Contains(needID))
+                        {
+                            needTag = i;
+                            gamesAvailable = true;
+                        }
                     }
-                }
 
-                if (gamesAvailable)
-                {
-                    CountLastGames();
+                    if (gamesAvailable)
+                    {
+                        CountLastGames();
 
-                    prefabs = new GameObject[divs.Count];
-                    tableTags = new string[divs.Count][];
-                    
-                    CreatePrefabs();
-                }
-                else
-                    NoGamesText.gameObject.SetActive(true);
+                        prefabs = new GameObject[divs.Count];
+                        tableTags = new string[divs.Count][];
 
-                Loading.isLoading = false;
-                if (OnPrefabsCreated != null)
-                    OnPrefabsCreated();
-            });
+                        CreatePrefabs();
+                    }
+                    else
+                        NoGamesText.gameObject.SetActive(true);
 
-        ObservableWWW.GetAndGetBytes(page).Subscribe(observer);
+                    Loading.isLoading = false;
+                    if (OnPrefabsCreated != null)
+                        OnPrefabsCreated();
+                });
+
+            ObservableWWW.GetAndGetBytes(page).Subscribe(observer);
+        }
+        else
+        {
+            NoGamesText.gameObject.SetActive(false);
+            NoInternet.gameObject.SetActive(true);
+        }
     }
 
     public void ShowLastGames()
@@ -135,35 +147,24 @@ public class ParseFromHTML : MonoBehaviour {
         {
             needID = pastGames;
             isPast = true;
-            switch (gameName)
-            {
-                case "dota":
-                    UpdatePage(NaViDota);
-                    break;
-                case "csgo":
-                    UpdatePage(NaViCsGo);
-                    break;
-                case "lol":
-                    UpdatePage(NaViLOL);
-                    break;
-            }
         }
         else
         {
             needID = futureGames;
             isPast = false;
-            switch (gameName)
-            {
-                case "dota":
-                    UpdatePage(NaViDota);
-                    break;
-                case "csgo":
-                    UpdatePage(NaViCsGo);
-                    break;
-                case "lol":
-                    UpdatePage(NaViLOL);
-                    break;
-            }
+        }
+
+        switch (gameName)
+        {
+            case "dota":
+                UpdatePage(NaViDota);
+                break;
+            case "csgo":
+                UpdatePage(NaViCsGo);
+                break;
+            case "lol":
+                UpdatePage(NaViLOL);
+                break;
         }
 
     }
@@ -206,7 +207,7 @@ public class ParseFromHTML : MonoBehaviour {
 
             for (int j = 0; j < tableTags[i].Length; j++)
             {
-                if (tableTags[i][j].Contains("teamname c1"))
+                if (tableTags[i][j].Contains("teamname c1")) // First team
                 {
                     if (tableTags[i][j + 2].Contains("Na") && tableTags[i][j + 2].Contains("Vi"))
                         prefabContent.c1name.text = NaVI;
@@ -214,11 +215,11 @@ public class ParseFromHTML : MonoBehaviour {
                     {
                         prefabContent.c1name.text = tableTags[i][j + 2].Substring(0, tableTags[i][j + 2].Length - 4);
                         ChangeSprite(prefabContent.naviLogo, prefabContent.c1name.text);
-                        Exceptions(true);
+                        Exceptions(prefabContent.naviLogo);
                     }
                 }
 
-                if (tableTags[i][j].Contains("teamname c2"))
+                if (tableTags[i][j].Contains("teamname c2")) // Second team
                 {
                     if (tableTags[i][j + 2].Contains("Na") && tableTags[i][j + 2].Contains("Vi"))
                         prefabContent.c2name.text = NaVI;
@@ -226,28 +227,24 @@ public class ParseFromHTML : MonoBehaviour {
                     {
                         prefabContent.c2name.text = tableTags[i][j + 2].Substring(0, tableTags[i][j + 2].Length - 4);
                         ChangeSprite(prefabContent.enemyLogo, prefabContent.c2name.text);
-                        Exceptions(false);
+                        Exceptions(prefabContent.enemyLogo);
                     }
                 }
                 
-                if (tableTags[i][j].Contains("sct"))
+                if (tableTags[i][j].Contains("sct")) // DateTime
                 {
-                    if (isPast)
-                    {
-                        prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
-                        prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
+                    prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
+                    prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
+                    prefabContent.date.text = prefabContent.date.text.Remove(prefabContent.date.text.Length - 12, 6);
 
-                        prefabContent.date.text = prefabContent.date.text.Remove(prefabContent.date.text.Length - 12, 6);
+                    if (isPast)
                         prefabContent.date.gameObject.transform.localPosition -= new Vector3(100f, 0f, 0f);
-                    }
-                    else
-                    {
-                        prefabContent.date.text = string.Join("", tableTags[i][j + 1].Substring(0, tableTags[i][j + 1].Length - 7).Split(','));
-                        prefabContent.date.text = prefabContent.date.text.Insert(prefabContent.date.text.Length - 5, "\n");
-                    }
+
+                    DateTime date = ToDateTime(prefabContent.date.text);
+                    prefabContent.date.text = Month[date.Month - 1].ToString() + " " + date.Day + "\n" + date.ToShortTimeString();
                 }
 
-                if (tableTags[i][j].Contains(resultButton))
+                if (tableTags[i][j].Contains(resultButton)) // SCORE
                 {
                     prefabContent.score.SetActive(true);
                     string[] temp = Regex.Split(tableTags[i][j], "data-score=\"(.+)\"");
@@ -299,23 +296,37 @@ public class ParseFromHTML : MonoBehaviour {
         }
     }
 
-    private void Exceptions(bool left)
+    private void Exceptions(Image logo)
     {
-        if (left)
-        {
-            if (prefabContent.c1name.text.Contains("VP"))
-                ChangeSprite(prefabContent.naviLogo, "Virtus.Pro");
-            if (prefabContent.c1name.text.Contains("Fnatic"))
-                ChangeSprite(prefabContent.naviLogo, "fnatic");
-
-        }
-        else
-        {
-            if (prefabContent.c1name.text.Contains("VP"))
-                ChangeSprite(prefabContent.enemyLogo, "Virtus.Pro");
-            if (prefabContent.c1name.text.Contains("Fnatic"))
-                ChangeSprite(prefabContent.enemyLogo, "fnatic");
-        }
+        if (prefabContent.c1name.text.Contains("VP"))
+            ChangeSprite(logo, "Virtus.Pro");
+        if (prefabContent.c1name.text.Contains("Fnatic"))
+            ChangeSprite(logo, "fnatic");
     }
-    
+    private DateTime ToDateTime(string s)
+    {
+        DateTime date = new DateTime();
+        string[] dateInString = s.Split(' ', '\n', ':');
+
+        int month = 1;
+        double day = double.Parse(dateInString[1]);
+        double hours = double.Parse(dateInString[2]);
+        double minutes = double.Parse(dateInString[3]);
+
+        for (int i = 0; i < Month.Length; i++)
+        {
+            if (Month[i].Equals(dateInString[0]))
+            {
+                month = i;
+                break;
+            }
+        }
+        
+        date = date.AddMonths(month);
+        date = date.AddDays(day - 1);
+        date = date.AddHours(hours + timeLocalization);
+        date = date.AddMinutes(minutes);
+        
+        return date;
+    }
 }

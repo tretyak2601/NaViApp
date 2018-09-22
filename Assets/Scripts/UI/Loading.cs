@@ -21,8 +21,11 @@ public class Loading : MonoBehaviour {
 
     public void StartCour()
     {
-        isLoading = true;
-        StartCoroutine(Load());
+        if (Application.internetReachability != NetworkReachability.NotReachable)
+        {
+            isLoading = true;
+            StartCoroutine(Load());
+        }
     }
 
     public void StopCour()
