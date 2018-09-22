@@ -46,7 +46,7 @@ public class Loading : MonoBehaviour {
         while (true)
         {
             loadingInit.transform.Rotate(Vector3.back * 15f);
-            yield return new WaitForSeconds(0.001f);
+            yield return new WaitForFixedUpdate();
         }
     }
 
