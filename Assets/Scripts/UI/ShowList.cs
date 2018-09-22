@@ -9,12 +9,14 @@ public class ShowList : MonoBehaviour {
     [SerializeField] GameObject showButton;
     [SerializeField] Image Blur;
     [SerializeField] Image choosenGame;
+    [SerializeField] ParseFromHTML parsing;
 
     private bool isOnPosition = false;
     private static Vector3 mainPosition;
     private static Vector3 rightPosition;
 
 	void Start () {
+        parsing.OnPrefabsCreated += StartBack;
         mainPosition = new Vector3(List.transform.localPosition.x, List.transform.localPosition.y, List.transform.localPosition.z);
         rightPosition = new Vector3(List.transform.localPosition.x + 250, List.transform.localPosition.y, List.transform.localPosition.z);
     }
@@ -39,19 +41,22 @@ public class ShowList : MonoBehaviour {
 
     private IEnumerator GetBack()
     {
-        showButton.SetActive(true);
-        Blur.gameObject.SetActive(false);
-        while (isOnPosition)
+        if (!Loading.isLoading)
         {
-            List.transform.localPosition = Vector3.MoveTowards(List.transform.localPosition, mainPosition, Time.deltaTime * 1000f);
-
-            if (List.transform.localPosition == mainPosition)
+            showButton.SetActive(true);
+            Blur.gameObject.SetActive(false);
+            while (isOnPosition)
             {
-                isOnPosition = false;
-                StopAllCoroutines();
-            }
+                List.transform.localPosition = Vector3.MoveTowards(List.transform.localPosition, mainPosition, Time.deltaTime * 1000f);
 
-            yield return isOnPosition;
+                if (List.transform.localPosition == mainPosition)
+                {
+                    isOnPosition = false;
+                    StopAllCoroutines();
+                }
+
+                yield return isOnPosition;
+            }
         }
     }
 
@@ -65,5 +70,10 @@ public class ShowList : MonoBehaviour {
     {
         if (isOnPosition)
             StartCoroutine(GetBack());
+    }
+
+    private void OnDisable()
+    {
+        parsing.OnPrefabsCreated -= StartBack;
     }
 }

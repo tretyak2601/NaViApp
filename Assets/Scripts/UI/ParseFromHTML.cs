@@ -5,6 +5,8 @@ using System.Net;
 using System.Text.RegularExpressions;
 using UnityEngine.UI;
 using System.Text;
+using UniRx;
+using System;
 
 public class ParseFromHTML : MonoBehaviour {
 
@@ -12,8 +14,8 @@ public class ParseFromHTML : MonoBehaviour {
     private const string NaViDota = "http://game-tournaments.com/dota-2/team/navi";
     private const string NaViLOL = "http://game-tournaments.com/lol/team/navi";
 
-    private const string futureGames = "block_matches_current";
-    private const string pastGames = "block_matches_past";
+    public const string futureGames = "block_matches_current";
+    public const string pastGames = "block_matches_past";
     private const string NaVI = "Na`Vi";
     private const string resultButton = "mbutton tresult";
 
@@ -42,12 +44,9 @@ public class ParseFromHTML : MonoBehaviour {
     [SerializeField] Image TimeBackButtonImage;
     [SerializeField] Text NoGamesText;
 
-    void Start()
-    {
-        webSite = new WebClient();
-        UpdatePage(NaViCsGo);
-    }
-
+    public event Action OnUpdateStart;
+    public event Action OnPrefabsCreated;
+    
     public string GameName
     {
         set
@@ -73,44 +72,61 @@ public class ParseFromHTML : MonoBehaviour {
         }
     }
 
+    void Start()
+    {
+        webSite = new WebClient();
+        UpdatePage(NaViCsGo);
+    }
+
     public void UpdatePage(string page)
     {
+        if (OnUpdateStart != null)
+            OnUpdateStart();
+
         TimeBackButtonImage.color = ScreenSelected.unChoosed;
         NoGamesText.gameObject.SetActive(false);
         gamesAvailable = false;
         Clear();
 
-        bHtml = webSite.DownloadData(page);
-        html = Encoding.UTF8.GetString(bHtml);
-        tegs = Regex.Split(html, @"(?<=[>])");
-        
-        for (int i = 0; i < tegs.Length; i++)
-        {
-            if (tegs[i].Contains(needID))
+        //bHtml = webSite.DownloadData(page);
+        var observer = Observer.Create<byte[]>(
+            x =>
             {
-                needTag = i;
-                gamesAvailable = true;
-            }
-        }
-
-        if (gamesAvailable)
-        {
-
-            CountLastGames();
-
-            prefabs = new GameObject[divs.Count];
-            tableTags = new string[divs.Count][];
-
-            for (int i = 0; i < divs.Count; i++)
+                bHtml = x;
+            },
+            ex => Debug.Log("Error"),
+            () => 
             {
-                tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
-                prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
-            }
+                html = Encoding.UTF8.GetString(bHtml);
+                tegs = Regex.Split(html, @"(?<=[>])");
 
-            CreatePrefabs();
-        }
-        else
-            NoGamesText.gameObject.SetActive(true);
+                for (int i = 0; i < tegs.Length; i++)
+                {
+                    if (tegs[i].Contains(needID))
+                    {
+                        needTag = i;
+                        gamesAvailable = true;
+                    }
+                }
+
+                if (gamesAvailable)
+                {
+                    CountLastGames();
+
+                    prefabs = new GameObject[divs.Count];
+                    tableTags = new string[divs.Count][];
+                    
+                    CreatePrefabs();
+                }
+                else
+                    NoGamesText.gameObject.SetActive(true);
+
+                Loading.isLoading = false;
+                if (OnPrefabsCreated != null)
+                    OnPrefabsCreated();
+            });
+
+        ObservableWWW.GetAndGetBytes(page).Subscribe(observer);
     }
 
     public void ShowLastGames()
@@ -178,6 +194,12 @@ public class ParseFromHTML : MonoBehaviour {
 
     private void CreatePrefabs()
     {
+        for (int i = 0; i < divs.Count; i++)
+        {
+            tableTags[i] = Regex.Split((string)divs[i], @"(?<=[>])");
+            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
+        }
+
         for (int i = 0; i < divs.Count; i++)
         {
             prefabContent = prefabs[i].GetComponent<GamePrefab>();
