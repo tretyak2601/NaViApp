@@ -53,6 +53,7 @@ public class ScreenSelected : MonoBehaviour {
     {
         isStaying = false;
         off = true;
+
         choosedMenu = EventSystem.current.currentSelectedGameObject;
 
         foreach (var i in menuPair)
@@ -96,12 +97,25 @@ public class ScreenSelected : MonoBehaviour {
     public void SetColor()
     {
         if (ParseFromHTML.isPast)
-        {
             lastGamesButtonImage.color = choosed;
-        }
         else
-        {
             lastGamesButtonImage.color = unChoosed;
+    }
+
+    Vector3 deltaPos = Vector3.zero;
+
+    public void SlideRightToLeft()
+    {
+        Menu.transform.localPosition = new Vector3(Input.mousePosition.x - 1080f, Menu.transform.localPosition.y, Menu.transform.localPosition.z)/10f;
+    }
+
+    public void OnEndDrag()
+    {
+        if (Menu.transform.localPosition.x < -50f)
+        {
+
+
+
         }
     }
 }
