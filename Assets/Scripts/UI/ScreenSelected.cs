@@ -6,92 +6,102 @@ using UnityEngine.EventSystems;
 
 public class ScreenSelected : MonoBehaviour {
     
-    [SerializeField] MenuPair[] menuPair;
     [SerializeField] GameObject Menu;
     [SerializeField] Image lastGamesButtonImage;
-
-    [HideInInspector] GameObject choosedMenu;
-    [HideInInspector] int numOfMenu;
-    [HideInInspector] GameObject ShownMenu;
+    [SerializeField] Button[] buttons;
+    [SerializeField] MenuObj[] menus;
 
     public static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
     public static Color unChoosed = new Color(1, 1, 1, 0.5f);
-    private static Vector3 moove = new Vector3(1080, 0, 0);
-    private const int speed = 5;
-    private bool isStaying = true;
-    private bool off = true;
-    private Vector3 rightPos;
+
+    private static int numMenu = 0;
+    private static Vector3 menuPos = Vector3.zero;
 
     void Start () {
-
+        MenuObj.OnMenuChanged += MoveMenu;
 	}
 
-    void Update()
+    private void MoveMenu(Button obj)
     {
-        if (ShownMenu != null)
+        MenuObj choosedMenu = obj.GetComponent<MenuObj>();
+        StartCoroutine(Mooving(choosedMenu));
+    }
+
+    IEnumerator Mooving(MenuObj obj)
+    {
+        while (true)
         {
-            if (Menu.transform.localPosition != rightPos)
-            {
-                float distance = (Menu.transform.localPosition - rightPos).magnitude + 100;
-                Menu.transform.localPosition = Vector3.MoveTowards(Menu.transform.localPosition, rightPos, Time.deltaTime * speed * distance);
-            }
+            if (Menu.transform.localPosition != obj.menuPosition)
+                Menu.transform.localPosition = Vector3.MoveTowards(Menu.transform.localPosition, obj.menuPosition, Time.deltaTime * 5000);
             else
-                isStaying = true;            
-        }
+            {
+                numMenu = obj.menuNum;
+                menuPos = Menu.transform.localPosition;
+                OffOthersButton(obj);
+                obj.mainImage.color = choosed;
+                obj.bottomImage.gameObject.SetActive(true);
+                StopAllCoroutines();
+            }
 
-        if (isStaying && off)
-        {
-            for (int i = 0; i < menuPair.Length; i++)
-                menuPair[i].menu.SetActive(false);
-
-            menuPair[numOfMenu].menu.SetActive(true);
-            off = false;
+            yield return new WaitForFixedUpdate();
         }
     }
 
-    public void Choose()
+    private void OffOthersButton(MenuObj obj)
     {
-        isStaying = false;
-        off = true;
+        Button but = obj.Button;
 
-        choosedMenu = EventSystem.current.currentSelectedGameObject;
-
-        foreach (var i in menuPair)
-            i.menu.SetActive(true);
-
-        switch (choosedMenu.name)
+        for (int i = 0; i < buttons.Length; i++)
         {
-            case "Games Button": numOfMenu = 0;
-                break;
-            case "News Button": numOfMenu = 1;
-                break;
-            case "Streams Button": numOfMenu = 2;
-                break;
-            default: numOfMenu = 0;
-                break;
+            MenuObj temp = buttons[i].GetComponent<MenuObj>();
+            if (buttons[i] != but)
+            {
+                temp.mainImage.color = unChoosed;
+                temp.bottomImage.gameObject.SetActive(false);
+            }
         }
+    }
 
-        if (numOfMenu == 1)
-            rightPos = Vector3.zero - moove;
-        else if (numOfMenu == 2)
-            rightPos = Vector3.zero - moove * 2;
+    public void SlideRightToLeft()
+    {
+        float tapPos = Input.mousePosition.x - 1080 + menuPos.x * 10;
+        Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 10f;
+    }
+
+    public void OnEndDragRight()
+    {
+        if (Menu.transform.localPosition.x - menuPos.x < -50f && numMenu < 2)
+        {
+            numMenu++;
+            MenuObj obj = menus[numMenu];
+            StartCoroutine(Mooving(obj));
+        }
         else
-            rightPos = Vector3.zero;
-
-        offOthers(menuPair[numOfMenu]);
+        {
+            MenuObj obj = menus[numMenu];
+            StartCoroutine(Mooving(obj));
+        }
     }
 
-    private void offOthers(MenuPair pair)
+    public void SlideLeftToRight()
     {
-        foreach (var i in menuPair)
+        float tapPos = Input.mousePosition.x + menuPos.x * 10;
+        Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 10f;
+    }
+
+    public void OnEndDragLeft()
+    {
+        if (Menu.transform.localPosition.x > menuPos.x + 50f && numMenu > 0)
         {
-            i.image.color = unChoosed;
-            i.bottomImage.gameObject.SetActive(false);
+            numMenu--;
+            MenuObj obj = menus[numMenu];
+            StartCoroutine(Mooving(obj));
         }
-        
-        ShownMenu = pair.menu;
-        pair.image.color = choosed;
-        pair.bottomImage.gameObject.SetActive(true);
+        else
+        {
+            MenuObj obj = menus[numMenu];
+            StartCoroutine(Mooving(obj));
+        }
     }
 
     public void SetColor()
@@ -102,20 +112,8 @@ public class ScreenSelected : MonoBehaviour {
             lastGamesButtonImage.color = unChoosed;
     }
 
-    Vector3 deltaPos = Vector3.zero;
-
-    public void SlideRightToLeft()
+    void OnDisable()
     {
-        Menu.transform.localPosition = new Vector3(Input.mousePosition.x - 1080f, Menu.transform.localPosition.y, Menu.transform.localPosition.z)/10f;
-    }
-
-    public void OnEndDrag()
-    {
-        if (Menu.transform.localPosition.x < -50f)
-        {
-
-
-
-        }
+        MenuObj.OnMenuChanged -= MoveMenu;
     }
 }
