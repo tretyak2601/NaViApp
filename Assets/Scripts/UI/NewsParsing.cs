@@ -7,7 +7,11 @@ using System.Net;
 using System;
 using UniRx;
 
-public class NewsParsing : MonoBehaviour {
+public class NewsParsing : MonoBehaviour, IPage {
+
+    [SerializeField] GameObject tablePrefab;
+    [SerializeField] GameObject content;
+    [SerializeField] Sprite[] disciplines;
 
     private const string NewsHTML = "http://navi.gg/read/tree/2-news";
     private const string listTag = "list list-news";
@@ -21,17 +25,17 @@ public class NewsParsing : MonoBehaviour {
     private string[][] tableTags;
     private int needTag;
 
-    private ArrayList divs = new ArrayList();
+    public ArrayList objectList = new ArrayList();
     private WebClient webSite;
     private GameObject[] prefabs;
-    private GamePrefab prefabContent;
+    private NewsStruct prefabContent;
 
     void Start () {
         webSite = new WebClient();
         UpdatePage(NewsHTML);
 	}
 
-    private void UpdatePage(string page)
+    public void UpdatePage(string page)
     {
         var observer = Observer.Create<byte[]>(
             x =>
@@ -55,22 +59,19 @@ public class NewsParsing : MonoBehaviour {
 
                 if (newsAvailable)
                 {
-                    CountLastNews();
+                    CountLast();
 
-                    prefabs = new GameObject[divs.Count];
-                    tableTags = new string[divs.Count][];
+                    prefabs = new GameObject[objectList.Count];
+                    tableTags = new string[objectList.Count][];
 
-                    //CreatePrefabs();
-
-                    foreach (string q in divs)
-                        print(q);
+                    CreatePrefabs();
                 }
             });
 
         ObservableWWW.GetAndGetBytes(page).Subscribe(observer);
     }
 
-    private void CountLastNews()
+    public void CountLast()
     {
         for (int i = needTag + 1; i < tegs.Length; i++)
         {
@@ -85,12 +86,101 @@ public class NewsParsing : MonoBehaviour {
 
                     if (tegs[j].Contains("</li"))
                     {
-                        divs.Add(temp);
+                        objectList.Add(temp);
                         temp = string.Empty;
                         break;
                     }
                 }
             }
         }
+    }
+
+    public void CreatePrefabs()
+    {
+        for (int i = 0; i < objectList.Count; i++)
+        {
+            tableTags[i] = Regex.Split((string)objectList[i], @"(?<=[>])");
+            prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
+        }
+
+        for (int i = 0; i < objectList.Count; i++)
+        {
+            prefabContent = prefabs[i].GetComponent<NewsStruct>();
+
+            for (int j = 0; j < tableTags[i].Length; j++)
+            {
+                if (tableTags[i][j].Contains("item-news-bg")) // Main Image
+                {
+                    string[] temp = Regex.Split(tableTags[i][j], "http");
+                    string link = "http" + temp[1];
+                    link = link.Substring(0, link.Length - 4);
+
+                    byte[] image = webSite.DownloadData(link);
+                    Texture2D texture = new Texture2D(350, 300);
+                    texture.LoadImage(image);
+                    Sprite mySprite = Sprite.Create(texture, new Rect(0.0f, 0.0f, texture.width, texture.height), new Vector2(0.5f, 0.5f), 100.0f);
+
+                    prefabContent.mainImage.sprite = mySprite;
+
+                }
+
+                if (tableTags[i][j].Contains("icon-discipline")) // Discipline
+                {
+                    string[] temp = Regex.Split(tableTags[i][j], "data-game=\"");
+                    string dis = temp[1].Substring(0, temp[1].Length - 2);
+
+                    ChangeSprite(prefabContent.gameImage, dis);
+                }
+
+                if (tableTags[i][j].Contains("header-item-news")) // Header Text
+                {
+                    string temp = tableTags[i][j+1];
+                    temp = temp.Substring(0, temp.Length - 7);
+
+                    prefabContent.headerText.text = temp;
+                }
+
+                if (tableTags[i][j].Contains("description-news")) // Description
+                {
+                    string temp = tableTags[i][j + 1];
+                    temp = temp.Substring(0, temp.Length - 7);
+
+                    prefabContent.contentText.text = temp;
+                }
+
+                if (tableTags[i][j].Contains("data-news")) // Time
+                {
+                    string temp = tableTags[i][j + 1];
+                    string time = temp.Substring(0, temp.Length - 7);
+
+                    prefabContent.timeText.text = time;
+                }
+            }
+        }
+    }
+
+    public void ChangeSprite(Image img, string cname)
+    {
+        switch (cname)
+        {
+            case "d2":
+                img.sprite = disciplines[0];
+                break;
+            case "csgo":
+                img.sprite = disciplines[1];
+                break;
+            case "lol":
+                img.sprite = disciplines[3];
+                break;
+            default:
+                img.sprite = disciplines[0];
+                break;
+        }
+    }
+
+
+    public void Clear()
+    {
+
     }
 }

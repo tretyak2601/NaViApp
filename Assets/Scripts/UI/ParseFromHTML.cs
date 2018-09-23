@@ -7,7 +7,7 @@ using System.Text;
 using UniRx;
 using System;
 
-public class ParseFromHTML : MonoBehaviour {
+public class ParseFromHTML : MonoBehaviour, IPage {
 
     private const string NaViCsGo = "http://game-tournaments.com/csgo/team/navi";
     private const string NaViDota = "http://game-tournaments.com/dota-2/team/navi";
@@ -116,7 +116,7 @@ public class ParseFromHTML : MonoBehaviour {
 
                     if (gamesAvailable)
                     {
-                        CountLastGames();
+                        CountLast();
 
                         prefabs = new GameObject[divs.Count];
                         tableTags = new string[divs.Count][];
@@ -168,7 +168,7 @@ public class ParseFromHTML : MonoBehaviour {
 
     }
 
-    private void CountLastGames()
+    public void CountLast()
     {
         for (int i = needTag + 1; i < tegs.Length; i++)
         {
@@ -192,7 +192,7 @@ public class ParseFromHTML : MonoBehaviour {
         }
     }
 
-    private void CreatePrefabs()
+    public void CreatePrefabs()
     {
         for (int i = 0; i < divs.Count; i++)
         {
@@ -264,7 +264,7 @@ public class ParseFromHTML : MonoBehaviour {
         }
     }
 
-    private void ChangeSprite(Image image, string cname)
+    public void ChangeSprite(Image image, string cname)
     {
         for (int i = 0; i < logos.Length; i++)
         {
@@ -277,7 +277,7 @@ public class ParseFromHTML : MonoBehaviour {
         image.sprite = noName;
     }
 
-    private void Clear()
+    public void Clear()
     {
         if (prefabs != null)
         {
