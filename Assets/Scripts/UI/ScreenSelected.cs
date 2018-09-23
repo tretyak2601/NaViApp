@@ -5,19 +5,23 @@ using UnityEngine.UI;
 public class ScreenSelected : MonoBehaviour {
     
     [SerializeField] GameObject Menu;
+    [SerializeField] GameObject leftMenu;
     [SerializeField] Image lastGamesButtonImage;
     [SerializeField] Button[] buttons;
     [SerializeField] MenuObj[] menus;
     [SerializeField] GameObject[] Tables;
 
     public static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
-    public static Color unChoosed = new Color(1, 1, 1, 0.5f);
+    public static Color unChoosed = new Color(1, 1, 1, 1f);
 
-    private static int numMenu = 0;
+    private const string greyHexColor = "#717686";
+
+    private static int numMenu = 2;
     private static Vector3 menuPos = Vector3.zero;
 
     void Start () {
         MenuObj.OnMenuChanged += MoveMenu;
+        ColorUtility.TryParseHtmlString(greyHexColor, out unChoosed);
 	}
 
     private void MoveMenu(Button obj)
@@ -28,6 +32,8 @@ public class ScreenSelected : MonoBehaviour {
 
     IEnumerator Mooving(MenuObj obj)
     {
+        leftMenu.SetActive(false);
+
         for (int i = 0; i < Tables.Length; i++)
             Tables[i].SetActive(true);
 
@@ -37,6 +43,9 @@ public class ScreenSelected : MonoBehaviour {
                 Menu.transform.localPosition = Vector3.MoveTowards(Menu.transform.localPosition, obj.menuPosition, Time.deltaTime * 5000);
             else
             {
+                if (obj.menuNum == 2)
+                    leftMenu.SetActive(true);
+
                 numMenu = obj.menuNum;
                 menuPos = Menu.transform.localPosition;
                 OffOthersButton(obj);
@@ -84,7 +93,7 @@ public class ScreenSelected : MonoBehaviour {
 
     public void OnEndDragRight()
     {
-        if (Menu.transform.localPosition.x - menuPos.x < -50f && numMenu < 2)
+        if (Menu.transform.localPosition.x - menuPos.x < -50f && numMenu < menus.Length - 1)
             numMenu++;
 
         MenuObj obj = menus[numMenu];
