@@ -87,6 +87,7 @@ public class ScreenSelected : MonoBehaviour {
 
     public void SlideLeftToRight()
     {
+        leftMenu.SetActive(false);
         float tapPos = Input.mousePosition.x + menuPos.x * 10;
         Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 10f;
     }
@@ -95,6 +96,8 @@ public class ScreenSelected : MonoBehaviour {
     {
         if (Menu.transform.localPosition.x - menuPos.x < -50f && numMenu < menus.Length - 1)
             numMenu++;
+        else
+            leftMenu.SetActive(true);
 
         MenuObj obj = menus[numMenu];
         StartCoroutine(Mooving(obj));
