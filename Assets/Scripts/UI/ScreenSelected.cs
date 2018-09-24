@@ -81,20 +81,20 @@ public class ScreenSelected : MonoBehaviour {
 
     public void SlideRightToLeft()
     {
-        float tapPos = Input.mousePosition.x - 1080 + menuPos.x * 10;
-        Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 10f;
+        float tapPos = Input.mousePosition.x - 1080 + menuPos.x * 5;
+        Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 5f;
     }
 
     public void SlideLeftToRight()
     {
         leftMenu.SetActive(false);
-        float tapPos = Input.mousePosition.x + menuPos.x * 10;
-        Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 10f;
+        float tapPos = Input.mousePosition.x + menuPos.x * 5;
+        Menu.transform.localPosition = new Vector3(tapPos, Menu.transform.localPosition.y, Menu.transform.localPosition.z) / 5f;
     }
 
     public void OnEndDragRight()
     {
-        if (Menu.transform.localPosition.x - menuPos.x < -50f && numMenu < menus.Length - 1)
+        if (Menu.transform.localPosition.x - menuPos.x < -35f && numMenu < menus.Length - 1)
             numMenu++;
         else
             leftMenu.SetActive(true);
@@ -105,7 +105,7 @@ public class ScreenSelected : MonoBehaviour {
 
     public void OnEndDragLeft()
     {
-        if (Menu.transform.localPosition.x > menuPos.x + 50f && numMenu > 0)
+        if (Menu.transform.localPosition.x > menuPos.x + 35f && numMenu > 0)
             numMenu--;
 
         MenuObj obj = menus[numMenu];

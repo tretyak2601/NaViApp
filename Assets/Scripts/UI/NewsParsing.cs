@@ -30,13 +30,19 @@ public class NewsParsing : MonoBehaviour, IPage {
     private GameObject[] prefabs;
     private NewsStruct prefabContent;
 
+    public static event Action OnLoadingStart;
+    public static event Action OnLoadingEnded;
+
     void Start () {
+        OnLoadingEnded += CreatePrefabs;
         webSite = new WebClient();
         UpdatePage(NewsHTML);
 	}
+    
 
     public void UpdatePage(string page)
     {
+        OnLoadingStart();
         var observer = Observer.Create<byte[]>(
             x =>
             {
@@ -64,7 +70,7 @@ public class NewsParsing : MonoBehaviour, IPage {
                     prefabs = new GameObject[objectList.Count];
                     tableTags = new string[objectList.Count][];
 
-                    CreatePrefabs();
+                    OnLoadingEnded();
                 }
             });
 
@@ -97,18 +103,21 @@ public class NewsParsing : MonoBehaviour, IPage {
 
     public void CreatePrefabs()
     {
-        for (int i = 0; i < objectList.Count; i++)
+        for (int i = 0; i < objectList.Count - 1; i++)
         {
             tableTags[i] = Regex.Split((string)objectList[i], @"(?<=[>])");
             prefabs[i] = Instantiate(tablePrefab, tablePrefab.transform.localPosition, Quaternion.identity, content.transform);
         }
 
-        for (int i = 0; i < objectList.Count; i++)
+        for (int i = 0; i < objectList.Count - 1; i++)
         {
             prefabContent = prefabs[i].GetComponent<NewsStruct>();
 
             for (int j = 0; j < tableTags[i].Length; j++)
             {
+                if (tableTags[i][j].Contains("banner block-banner"))
+                    continue;
+
                 if (tableTags[i][j].Contains("item-news-bg")) // Main Image
                 {
                     string[] temp = Regex.Split(tableTags[i][j], "http");
@@ -134,7 +143,7 @@ public class NewsParsing : MonoBehaviour, IPage {
 
                 if (tableTags[i][j].Contains("header-item-news")) // Header Text
                 {
-                    string temp = tableTags[i][j+1];
+                    string temp = tableTags[i][j + 1];
                     temp = temp.Substring(0, temp.Length - 7);
 
                     prefabContent.headerText.text = temp;

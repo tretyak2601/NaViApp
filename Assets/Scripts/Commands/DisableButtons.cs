@@ -11,8 +11,8 @@ public class DisableButtons : MonoBehaviour {
     [SerializeField] Button showLastGames;
 
     void Start () {
-        parsing.OnPrefabsCreated += OnAll;
-        parsing.OnUpdateStart += DisableAll;
+        ParseFromHTML.OnPrefabsCreated += OnAll;
+        ParseFromHTML.OnUpdateStart += DisableAll;
 	}
 
     private void DisableAll()
@@ -33,7 +33,7 @@ public class DisableButtons : MonoBehaviour {
 
     private void OnDisable()
     {
-        parsing.OnPrefabsCreated -= OnAll;
-        parsing.OnUpdateStart -= DisableAll;
+        ParseFromHTML.OnPrefabsCreated -= OnAll;
+        ParseFromHTML.OnUpdateStart -= DisableAll;
     }
 }

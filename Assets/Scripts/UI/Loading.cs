@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
+using System;
 
 public class Loading : MonoBehaviour {
     
@@ -13,7 +14,9 @@ public class Loading : MonoBehaviour {
     private GameObject loadingInit;
 
     void Start () {
-        parsing.OnPrefabsCreated += StopCour;
+        ParseFromHTML.OnPrefabsCreated += StopCour;
+        NewsParsing.OnLoadingStart += StartCour;
+        NewsParsing.OnLoadingEnded += StopCour;
 	}
 
     public void StartCour()
@@ -49,6 +52,8 @@ public class Loading : MonoBehaviour {
 
     private void OnDisable()
     {
-        parsing.OnPrefabsCreated -= StopCour;
+        ParseFromHTML.OnPrefabsCreated -= StopCour;
+        NewsParsing.OnLoadingStart -= StartCour;
+        NewsParsing.OnLoadingEnded -= StopCour;
     }
 }

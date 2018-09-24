@@ -15,7 +15,7 @@ public class ShowList : MonoBehaviour {
     private static Vector3 rightPosition;
 
 	void Start () {
-        parsing.OnPrefabsCreated += StartBack;
+        ParseFromHTML.OnPrefabsCreated += StartBack;
         mainPosition = new Vector3(List.transform.localPosition.x, List.transform.localPosition.y, List.transform.localPosition.z);
         rightPosition = new Vector3(List.transform.localPosition.x + 250, List.transform.localPosition.y, List.transform.localPosition.z);
     }
@@ -73,6 +73,6 @@ public class ShowList : MonoBehaviour {
 
     private void OnDisable()
     {
-        parsing.OnPrefabsCreated -= StartBack;
+        ParseFromHTML.OnPrefabsCreated -= StartBack;
     }
 }

@@ -46,8 +46,8 @@ public class ParseFromHTML : MonoBehaviour, IPage {
     [SerializeField] Text NoGamesText;
     [SerializeField] Text NoInternet;
 
-    public event Action OnUpdateStart;
-    public event Action OnPrefabsCreated;
+    public static event Action OnUpdateStart;
+    public static event Action OnPrefabsCreated;
     
     public string GameName
     {
