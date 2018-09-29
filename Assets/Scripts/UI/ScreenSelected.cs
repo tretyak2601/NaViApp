@@ -15,7 +15,7 @@ public class ScreenSelected : MonoBehaviour
 
     public static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
     public static Color unChoosed = new Color(1, 1, 1, 1f);
-    private const int enabledSpeed = 10;
+    private const int enabledSpeed = 20;
 
     private Vector3 tapPos;
     private float deltaPosX;
@@ -113,7 +113,7 @@ public class ScreenSelected : MonoBehaviour
             deltaPosX = EventSys.mouseDelta.x;
             deltaPosY = EventSys.mouseDelta.y;
 
-            if (Mathf.Abs(deltaPosY) > enabledSpeed)
+            if (Mathf.Abs(deltaPosY) > enabledSpeed - 10)
             {
                 isScrolling = true;
                 return;
@@ -125,7 +125,7 @@ public class ScreenSelected : MonoBehaviour
             if (isSliding)
             {
                 currentScroll.vertical = false;
-                Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.9f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
+                Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.3f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
             }
         }
     }
