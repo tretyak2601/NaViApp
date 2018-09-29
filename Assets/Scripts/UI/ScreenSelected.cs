@@ -5,7 +5,6 @@ using UnityEngine.EventSystems;
 
 public class ScreenSelected : MonoBehaviour
 {
-
     [SerializeField] GameObject Menu;
     [SerializeField] GameObject leftMenu;
     [SerializeField] Image lastGamesButtonImage;
@@ -16,13 +15,19 @@ public class ScreenSelected : MonoBehaviour
 
     public static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
     public static Color unChoosed = new Color(1, 1, 1, 1f);
+    private const int enabledSpeed = 10;
+
     private Vector3 tapPos;
-    public float deltaPos;
+    private float deltaPosX;
+    private float deltaPosY;
+    private bool isScrolling = false;
+    private bool isSliding = false;
 
     private const string greyHexColor = "#717686";
 
     private static int numMenu = 2;
     private static Vector3 menuPos = Vector3.zero;
+    public float showX;
 
     void Start()
     {
@@ -89,8 +94,11 @@ public class ScreenSelected : MonoBehaviour
     public void MouseUp()
     {
         currentScroll.vertical = true;
+        isScrolling = false;
+        isSliding = false;
         tapPos = Vector3.zero;
-        deltaPos = 0;
+        deltaPosX = 0;
+        deltaPosY = 0;
     }
 
     public void MouseDown()
@@ -98,31 +106,27 @@ public class ScreenSelected : MonoBehaviour
         tapPos = Input.mousePosition;
     }
 
-    float oldDelta = 0;
-
-    private void Update()
-    {
-        if (oldDelta == deltaPos)
-        {
-            deltaPos = 0;
-            tapPos = Input.mousePosition;
-            return;
-        }
-
-        oldDelta = deltaPos;
-    }
-
     public void SlideRightToLeft()
     {
-        if (tapPos != Vector3.zero)
+        if (tapPos != Vector3.zero && !isScrolling)
         {
-            deltaPos = tapPos.x - Input.mousePosition.x;
+            deltaPosX = EventSys.mouseDelta.x;
+            deltaPosY = EventSys.mouseDelta.y;
 
-            if (Mathf.Abs(deltaPos) < 200) 
+            if (Mathf.Abs(deltaPosY) > enabledSpeed)
+            {
+                isScrolling = true;
                 return;
+            }
 
-            currentScroll.vertical = false;
-            Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x - deltaPos / 50, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
+            if (Mathf.Abs(deltaPosX) > enabledSpeed)
+                isSliding = true;
+
+            if (isSliding)
+            {
+                currentScroll.vertical = false;
+                Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.9f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
+            }
         }
     }
 
