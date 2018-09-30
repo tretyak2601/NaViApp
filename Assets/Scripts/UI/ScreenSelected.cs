@@ -15,13 +15,13 @@ public class ScreenSelected : MonoBehaviour
 
     public static Color choosed = new Color(1f, 0.964f, 0.164f, 1);
     public static Color unChoosed = new Color(1, 1, 1, 1f);
-    private const int enabledSpeed = 20;
+    private const int enabledSpeed = 30;
 
     private Vector3 tapPos;
-    private float deltaPosX;
-    private float deltaPosY;
-    private bool isScrolling = false;
-    private bool isSliding = false;
+    public float deltaPosX;
+    public float deltaPosY;
+    public bool isScrolling = false;
+    public bool isSliding = false;
 
     private const string greyHexColor = "#717686";
 
@@ -56,7 +56,7 @@ public class ScreenSelected : MonoBehaviour
             {
                 if (obj.menuNum == 2)
                     leftMenu.SetActive(true);
-                
+
                 numMenu = obj.menuNum;
                 currentScroll = Tables[numMenu].transform.GetComponentInChildren<ScrollRect>();
                 menuPos = Menu.transform.localPosition;
@@ -90,7 +90,7 @@ public class ScreenSelected : MonoBehaviour
                 Tables[i].SetActive(false);
         }
     }
-
+    
     public void MouseUp()
     {
         currentScroll.vertical = true;
@@ -99,29 +99,29 @@ public class ScreenSelected : MonoBehaviour
         deltaPosX = 0;
         deltaPosY = 0;
     }
-    
+
+    private void Update()
+    {
+        deltaPosX = EventSys.mouseDelta.x;
+        deltaPosY = EventSys.mouseDelta.y;
+    }
+
     public void SlideRightToLeft()
     {
-        if (!isScrolling)
+        if (!isSliding && !isScrolling)
         {
-            deltaPosX = EventSys.mouseDelta.x;
-            deltaPosY = EventSys.mouseDelta.y;
-
-            if (Mathf.Abs(deltaPosY) > enabledSpeed - 10)
-            {
-                isScrolling = true;
-                return;
-            }
-
-            if (Mathf.Abs(deltaPosX) > enabledSpeed)
+            if (Mathf.Abs(deltaPosX) > Mathf.Abs(deltaPosY))
                 isSliding = true;
-
-            if (isSliding)
-            {
-                currentScroll.vertical = false;
-                Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.3f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
-            }
+            else
+                isScrolling = true;
         }
+        else if (isSliding)
+        {
+            currentScroll.vertical = false;
+            Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.3f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
+        }
+        else if (isScrolling)
+            isSliding = false;
     }
 
     public void OnEndDragRight()
