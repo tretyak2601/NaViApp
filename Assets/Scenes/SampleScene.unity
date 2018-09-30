@@ -429,9 +429,9 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 205132481}
-  - component: {fileID: 205132482}
   - component: {fileID: 205132484}
   - component: {fileID: 205132483}
+  - component: {fileID: 205132482}
   m_Layer: 5
   m_Name: Live/Vod Toggle
   m_TagString: Untagged
@@ -470,7 +470,7 @@ MonoBehaviour:
   m_Script: {fileID: -1184210157, guid: f70555f144d8491a825f0804e09c671c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AllowSwitchOff: 0
+  m_AllowSwitchOff: 1
 --- !u!114 &205132483
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -708,7 +708,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &285122568
 RectTransform:
   m_ObjectHideFlags: 0
@@ -747,6 +747,8 @@ MonoBehaviour:
   - {fileID: 21300000, guid: dd433fb6ac572644e9ce3846f451d7e6, type: 3}
   - {fileID: 21300000, guid: 5cef3bf5d5c7ae449bad85ac7d128d05, type: 3}
   - {fileID: 21300000, guid: 449d3f1f2632f69409bc7cd91af47f1f, type: 3}
+  videoToggle: {fileID: 1308247111}
+  streamToggle: {fileID: 525276094}
 --- !u!1 &289498636
 GameObject:
   m_ObjectHideFlags: 0
@@ -960,7 +962,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &316662231
 RectTransform:
   m_ObjectHideFlags: 0
@@ -995,7 +997,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &324703898
 RectTransform:
   m_ObjectHideFlags: 0
@@ -1617,18 +1619,7 @@ MonoBehaviour:
   m_Group: {fileID: 205132482}
   onValueChanged:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 285122569}
-        m_MethodName: OnToggleChange
-        m_Mode: 3
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 1
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
     m_TypeName: UnityEngine.UI.Toggle+ToggleEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
   m_IsOn: 0
@@ -4130,7 +4121,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &1455568397
 RectTransform:
   m_ObjectHideFlags: 0

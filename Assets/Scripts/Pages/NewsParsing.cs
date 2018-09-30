@@ -42,7 +42,9 @@ public class NewsParsing : MonoBehaviour, IPage {
 
     public void UpdatePage(string page)
     {
-        OnLoadingStart();
+        if (OnLoadingStart != null)
+            OnLoadingStart();
+
         var observer = Observer.Create<byte[]>(
             x =>
             {

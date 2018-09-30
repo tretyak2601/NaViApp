@@ -96,19 +96,13 @@ public class ScreenSelected : MonoBehaviour
         currentScroll.vertical = true;
         isScrolling = false;
         isSliding = false;
-        tapPos = Vector3.zero;
         deltaPosX = 0;
         deltaPosY = 0;
     }
-
-    public void MouseDown()
-    {
-        tapPos = Input.mousePosition;
-    }
-
+    
     public void SlideRightToLeft()
     {
-        if (tapPos != Vector3.zero && !isScrolling)
+        if (!isScrolling)
         {
             deltaPosX = EventSys.mouseDelta.x;
             deltaPosY = EventSys.mouseDelta.y;

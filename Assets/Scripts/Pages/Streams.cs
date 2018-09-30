@@ -12,6 +12,8 @@ public class Streams : MonoBehaviour, IPage
     [SerializeField] GameObject tablePrefab;
     [SerializeField] GameObject content;
     [SerializeField] Sprite[] disciplines;
+    [SerializeField] Toggle videoToggle;
+    [SerializeField] Toggle streamToggle;
 
     private const string site = "http://navi.gg";
     private const string videosHTML = "http://navi.gg/watch/record/";
@@ -41,6 +43,9 @@ public class Streams : MonoBehaviour, IPage
 
     private void Start()
     {
+        videoToggle.onValueChanged.AddListener( (value) => OnToggleChange(0, videoToggle) );
+        streamToggle.onValueChanged.AddListener( (value) => OnToggleChange(1, streamToggle) );
+
         webSite = new WebClient();
         UpdatePage(currentHTML);
         OnLoadingEnded += CreatePrefabs;
@@ -70,15 +75,15 @@ public class Streams : MonoBehaviour, IPage
                         streamsAvailable = true;
                     }
                 }
-
+                
                 if (streamsAvailable)
                 {
                     CountLast();
 
                     prefabs = new GameObject[objectList.Count];
                     tableTags = new string[objectList.Count][];
-
-                    if (!Loading.isLoading)
+                    
+                    if (OnLoadingEnded != null)
                         OnLoadingEnded();
                 }
             });
@@ -215,20 +220,23 @@ public class Streams : MonoBehaviour, IPage
         }
     }
 
-    public void OnToggleChange(int ID)
+    public void OnToggleChange(int ID, Toggle tog)
     {
-        if (ID == 0)
+        if (tog.isOn)
         {
-            currentHTML = videosHTML;
-            currentTag = listVideoTag;
-        }
-        else
-        {
-            currentHTML = streamsHTML;
-            currentTag = listStreamTag;
-        }
+            if (ID == 0)
+            {
+                currentHTML = videosHTML;
+                currentTag = listVideoTag;
+            }
+            else
+            {
+                currentHTML = streamsHTML;
+                currentTag = listStreamTag;
+            }
 
-        Clear();
-        UpdatePage(currentHTML);
+            Clear();
+            UpdatePage(currentHTML);
+        }
     }
 }
