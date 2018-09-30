@@ -13,11 +13,14 @@ public class Loading : MonoBehaviour {
 
     private GameObject loadingInit;
 
-    void Start () {
+    void Start ()
+    {
+        Streams.OnLoadingStart += StartCour;
         ParseFromHTML.OnPrefabsCreated += StopCour;
         NewsParsing.OnLoadingStart += StartCour;
         NewsParsing.OnLoadingEnded += StopCour;
-	}
+        Streams.OnLoadingEnded += StopCour;
+    }
 
     public void StartCour()
     {
@@ -52,6 +55,8 @@ public class Loading : MonoBehaviour {
 
     private void OnDisable()
     {
+        Streams.OnLoadingEnded -= StopCour;
+        Streams.OnLoadingStart -= StartCour;
         ParseFromHTML.OnPrefabsCreated -= StopCour;
         NewsParsing.OnLoadingStart -= StartCour;
         NewsParsing.OnLoadingEnded -= StopCour;

@@ -172,14 +172,11 @@ public class NewsParsing : MonoBehaviour, IPage {
     {
         switch (cname)
         {
-            case "d2":
-                img.sprite = disciplines[0];
-                break;
             case "csgo":
                 img.sprite = disciplines[1];
                 break;
             case "lol":
-                img.sprite = disciplines[3];
+                img.sprite = disciplines[2];
                 break;
             default:
                 img.sprite = disciplines[0];
@@ -190,6 +187,17 @@ public class NewsParsing : MonoBehaviour, IPage {
 
     public void Clear()
     {
+        if (prefabs != null)
+        {
+            content.transform.localPosition = Vector3.zero;
 
+            foreach (GameObject obj in prefabs)
+                Destroy(obj);
+
+            objectList.Clear();
+
+            for (int i = 0; i < content.transform.childCount; i++)
+                Destroy(content.transform.GetChild(i).gameObject);
+        }
     }
 }
