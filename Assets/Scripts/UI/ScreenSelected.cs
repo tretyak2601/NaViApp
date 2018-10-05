@@ -1,7 +1,6 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.EventSystems;
 
 public class ScreenSelected : MonoBehaviour
 {
@@ -38,13 +37,25 @@ public class ScreenSelected : MonoBehaviour
     private void MoveMenu(Button obj)
     {
         MenuObj choosedMenu = obj.GetComponent<MenuObj>();
-        StartCoroutine(Mooving(choosedMenu));
+        leftMenu.SetActive(false);
+
+        Menu.transform.localPosition = choosedMenu.menuPosition;
+        numMenu = choosedMenu.menuNum;
+        currentScroll = Tables[numMenu].transform.GetComponentInChildren<ScrollRect>();
+        Tables[numMenu].SetActive(true);
+        OffOthersButton(choosedMenu);
+        menuPos = Menu.transform.localPosition;
+        choosedMenu.mainImage.color = choosed;
+        choosedMenu.bottomImage.gameObject.SetActive(true);
+        
+        if (numMenu == 2)
+            leftMenu.SetActive(true);
     }
 
     IEnumerator Mooving(MenuObj obj)
     {
         leftMenu.SetActive(false);
-
+        
         for (int i = 0; i < Tables.Length; i++)
             Tables[i].SetActive(true);
 
@@ -54,9 +65,6 @@ public class ScreenSelected : MonoBehaviour
                 Menu.transform.localPosition = Vector3.MoveTowards(Menu.transform.localPosition, obj.menuPosition, Time.deltaTime * 5000);
             else
             {
-                if (obj.menuNum == 2)
-                    leftMenu.SetActive(true);
-
                 numMenu = obj.menuNum;
                 currentScroll = Tables[numMenu].transform.GetComponentInChildren<ScrollRect>();
                 menuPos = Menu.transform.localPosition;
@@ -65,6 +73,9 @@ public class ScreenSelected : MonoBehaviour
                 obj.bottomImage.gameObject.SetActive(true);
                 StopAllCoroutines();
             }
+
+            if (numMenu == 2)
+                leftMenu.SetActive(true);
 
             yield return new WaitForFixedUpdate();
         }
@@ -109,17 +120,19 @@ public class ScreenSelected : MonoBehaviour
     public void SlideRightToLeft()
     {
         if (!isSliding && !isScrolling)
-        {
-            if (Mathf.Abs(deltaPosX) > Mathf.Abs(deltaPosY))
+        {   
+            if (Mathf.Abs(deltaPosX) + 0.5f > Mathf.Abs(deltaPosY))
+            {
+                currentScroll.vertical = false;
                 isSliding = true;
+            }
             else
                 isScrolling = true;
+
+            return;
         }
         else if (isSliding)
-        {
-            currentScroll.vertical = false;
             Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.3f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
-        }
         else if (isScrolling)
             isSliding = false;
     }

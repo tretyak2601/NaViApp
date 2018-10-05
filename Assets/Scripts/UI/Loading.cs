@@ -27,8 +27,14 @@ public class Loading : MonoBehaviour {
         if (Application.internetReachability != NetworkReachability.NotReachable)
         {
             isLoading = true;
-            StartCoroutine(Load());
+            StartCoroutine(Load(background.transform));
         }
+    }
+
+    public void StartLoad(Transform t)
+    {
+            isLoading = true;
+            StartCoroutine(Load(t));
     }
 
     public void StopCour()
@@ -39,10 +45,10 @@ public class Loading : MonoBehaviour {
             Destroy(loadingInit);
     }
 
-    IEnumerator Load()
+    IEnumerator Load(Transform t)
     {
         if (background.activeSelf)
-            loadingInit = Instantiate(loading, background.transform);
+            loadingInit = Instantiate(loading, t);
         else
             loadingInit = Instantiate(loading, secondBackground.transform);
 
