@@ -428,7 +428,6 @@ MonoBehaviour:
   thisRT: {fileID: 224131256761630530}
   mainImage: {fileID: 114506135398978848}
   newsPrefab: {fileID: 1627340667658660, guid: d5a31a1be9bd4a24fbb5f97c48e33c24, type: 2}
-  currentMenu: {fileID: 224171863362853600}
 --- !u!114 &114648119443436590
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -649,7 +648,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 1, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: 515, y: 0}
+  m_AnchoredPosition: {x: 540, y: 0}
   m_SizeDelta: {x: 1130, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224171863362853600

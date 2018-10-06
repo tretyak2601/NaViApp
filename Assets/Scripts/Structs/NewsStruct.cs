@@ -10,6 +10,7 @@ public class NewsStruct : MonoBehaviour {
     [SerializeField] public Text  headerText;
     [SerializeField] public Text  contentText;
     [SerializeField] public Text  timeText;
+    [HideInInspector] public string link;
 
 	void Start () {
 		

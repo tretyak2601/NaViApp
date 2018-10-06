@@ -10,43 +10,59 @@ public class SlidingImage : MonoBehaviour {
     [SerializeField] Image mainImage;
     [SerializeField] GameObject newsPrefab;
 
+    private Vector3 newsPos;
     private Vector3 needPos = new Vector3(-2160, 0f, 0f);
     private Vector2 startSize;
     private Vector3 instPosition;
 
     private FullNewsPage fullPage;
     private Transform currentMenu;
+    private GameObject BottomMenu;
+
     private GameObject MENU;
     private GameObject initNews;
 
     private float addHeight = 0;
 
+    private NewsStruct choosenNews;
 
     private void Start()
     {
         MENU = GameObject.FindGameObjectWithTag("MENU");
         currentMenu = GameObject.FindGameObjectWithTag("NEWS").transform;
+        BottomMenu = GameObject.FindGameObjectWithTag("BOTTOM");
+        newsPos = currentMenu.transform.localPosition;
         StartCoroutine(wait());
     }
 
     public void Dragging()
     {
-        thisRT.sizeDelta += new Vector2(-EventSys.mouseDelta.x, 0f) * 1.8f;
+        thisRT.sizeDelta += new Vector2(-EventSys.mouseDelta.x, 0f) * 2.5f;
     }
 
     public void OnEndDrag()
     {
         if (thisRT.sizeDelta.x > 2500)
+        {
             ShowNews();
+        }
         else
             StartCoroutine(GetBack());
     }
 
     private void ShowNews()
     {
+        BottomMenu.SetActive(false);
+        choosenNews = thisRT.gameObject.GetComponentInParent<NewsStruct>();
         initNews = Instantiate(newsPrefab, MENU.transform);
+
         fullPage = initNews.GetComponent<FullNewsPage>();
+        fullPage.mainImage.sprite = choosenNews.mainImage.sprite;
+        fullPage.mainText.text = choosenNews.headerText.text;
         fullPage.backButton.onClick.AddListener(StartGetBack);
+
+        fullPage.UpdatePage(choosenNews.link);
+
         Vector3 needsPos = new Vector3(-1080, 0, 0f);
         initNews.transform.localPosition = needsPos;
         StartCoroutine(GoToScreen());
@@ -107,12 +123,13 @@ public class SlidingImage : MonoBehaviour {
 
     IEnumerator BackToNews()
     {
+        BottomMenu.SetActive(true);
         while (currentMenu.localPosition != needPos)
         {
             Destroy(initNews);
             float distance = (currentMenu.localPosition - needPos).magnitude;
 
-            currentMenu.localPosition = Vector2.MoveTowards(currentMenu.localPosition, needPos, Time.deltaTime * (distance + 5) * 10);
+            currentMenu.localPosition = Vector2.MoveTowards(currentMenu.localPosition, newsPos, Time.deltaTime * (distance + 5) * 10);
 
             if (currentMenu.transform.localPosition.x >= needPos.x)
                 StopAllCoroutines();

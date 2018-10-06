@@ -132,7 +132,7 @@ public class ScreenSelected : MonoBehaviour
             return;
         }
         else if (isSliding)
-            Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.3f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
+            Menu.transform.localPosition = new Vector3(Menu.transform.localPosition.x + deltaPosX * 0.5f, Menu.transform.localPosition.y, Menu.transform.localPosition.z);
         else if (isScrolling)
             isSliding = false;
     }

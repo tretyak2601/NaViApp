@@ -120,6 +120,13 @@ public class NewsParsing : MonoBehaviour, IPage {
                 if (tableTags[i][j].Contains("banner block-banner"))
                     continue;
 
+                if (tableTags[i][j].Contains("href")) // link
+                {
+                    string[] temp = Regex.Split(tableTags[i][j], "href=\"");
+                    string dis = temp[1].Substring(0, temp[1].Length - 2);
+                    prefabContent.link = dis;
+                }
+
                 if (tableTags[i][j].Contains("item-news-bg")) // Main Image
                 {
                     string[] temp = Regex.Split(tableTags[i][j], "http");
