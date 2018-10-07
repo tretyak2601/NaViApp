@@ -13,6 +13,7 @@ public class FullNewsPage : MonoBehaviour, IPage {
     [SerializeField] public Button backButton;
     [SerializeField] public Image mainImage;
     [SerializeField] public Text mainText;
+    [SerializeField] private GameObject content;
 
     private WebClient web;
     private GameObject[] prefabs;
@@ -25,7 +26,7 @@ public class FullNewsPage : MonoBehaviour, IPage {
     private string[][] tableTags;
 
     private const string topTag = "header-description";
-    private const string contentTag = "content";
+    private const string contentTag = "<div class=\"content\">";
 
     private int needTagContent;
     private int needTagTop;
@@ -33,6 +34,10 @@ public class FullNewsPage : MonoBehaviour, IPage {
 
     public static event Action OnLoadingStart;
     public static event Action OnLoadingEnded;
+
+    [SerializeField] GameObject textPrefab;
+    [SerializeField] GameObject flagPrefab;
+    [SerializeField] GameObject imagePrefab;
 
     public void UpdatePage(string page)
     {
@@ -75,18 +80,19 @@ public class FullNewsPage : MonoBehaviour, IPage {
                         }
 
                         if (newsAvailable)
-                        {/*
+                        {
                             CountLast();
+                            //prefabs = new GameObject[objectList.Count];
+                            //tableTags = new string[objectList.Count][];
 
-                            prefabs = new GameObject[objectList.Count];
-                            tableTags = new string[objectList.Count][];
-
-                            OnLoadingEnded();*/
+                            //OnLoadingEnded();
                         }
                     });
 
         ObservableWWW.GetAndGetBytes(page).Subscribe(observer);
     }
+
+    bool isCenter = false;
 
     public void CountLast()
     {
@@ -94,6 +100,19 @@ public class FullNewsPage : MonoBehaviour, IPage {
 
         for (int i = needTagContent + 1; i < tegs.Length; i++)
         {
+            if (isCenter)
+            {
+                if (tegs[i].Contains("</center>"))
+                    isCenter = false;
+                continue;
+            }
+
+            if (tegs[i].Contains("<center>"))
+            {
+                isCenter = true;
+                continue;
+            }
+
             if (tegs[i].Contains("</div"))
                 return;
 
@@ -105,6 +124,35 @@ public class FullNewsPage : MonoBehaviour, IPage {
 
                     if (tegs[j].Contains("</p"))
                     {
+                        Obr(temp);
+                        objectList.Add(temp);
+                        temp = string.Empty;
+                        break;
+                    }
+                }
+            }
+            else if (tegs[i].Contains("<h2"))
+            {
+                for (int j = i; j < tegs.Length; j++)
+                {
+                    temp += tegs[j];
+
+                    if (tegs[j].Contains("</h2"))
+                    {
+                        objectList.Add(temp);
+                        temp = string.Empty;
+                        break;
+                    }
+                }
+            }
+            else if (tegs[i].Contains("<h4"))
+            {
+                for (int j = i; j < tegs.Length; j++)
+                {
+                    temp += tegs[j];
+
+                    if (tegs[j].Contains("</h4 "))
+                    {
                         objectList.Add(temp);
                         temp = string.Empty;
                         break;
@@ -114,6 +162,32 @@ public class FullNewsPage : MonoBehaviour, IPage {
         }
     }
 
+    public void Obr(string s)
+    {
+        string[] temp = Regex.Split(s, @"(?<=[>])");
+
+        foreach (var k in temp)
+        {
+            string[] str = Regex.Split(k, "<");
+
+            foreach (var element in str)
+            {
+                if (element.Trim() != string.Empty && !element.Contains(">")) //Standart sentences.
+                {
+                    if (content.transform.childCount != 0 && content.transform.GetChild(content.transform.childCount - 1).GetComponent<Text>())
+                        content.transform.GetChild(content.transform.childCount - 1).GetComponent<Text>().text += element;
+                    else
+                    {
+                        GameObject w = Instantiate(textPrefab, content.transform);
+                        w.GetComponent<Text>().text = element;
+                    }
+                }
+
+            }
+        }
+    }
+
+
     public void CreatePrefabs()
     {
         throw new System.NotImplementedException();
@@ -121,7 +195,7 @@ public class FullNewsPage : MonoBehaviour, IPage {
 
     public void ChangeSprite(Image img, string cname)
     {
-
+        throw new System.NotImplementedException();
     }
 
     public void Clear()
